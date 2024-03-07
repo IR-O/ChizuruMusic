@@ -1,12 +1,12 @@
 ffmpeg-python
-py-tgcalls==1.1.2
+py-tgcalls==0.9.7
 pyrogram
 python-dotenv
 tgcrypto
 youtube_search
 yt-dlp
 pytube
-pillow
+pillow==9.5.0
 aiofiles
 numpy
 wget
