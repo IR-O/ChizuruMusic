@@ -7,6 +7,6 @@ BOT_TOKEN = getenv("BOT_TOKEN", "")
 OWNER_ID = int(getenv("OWNER_ID", "6045293810"))
 SUDO_USERS = list(map(int, getenv("SUDO_USERS", "6045293810").split()))
 MONGO_URL = getenv("MONGO_URL", "")
-SESSION_STRING = getenv("SESSION_STRING", "A")
+SESSION_STRING = getenv("SESSION_STRING", "")
 
 
