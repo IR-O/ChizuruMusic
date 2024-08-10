@@ -1,5 +1,5 @@
 ffmpeg-python
-py-tgcalls==2.0.2
+py-tgcalls==1.7.2
 pyrogram
 python-dotenv
 tgcrypto
