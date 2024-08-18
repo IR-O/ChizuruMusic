@@ -12,7 +12,6 @@ from Chizuru.core import utils as rq
 from Chizuru.core.utils import DurationLimitError
 from Chizuru.core.utils import get_audio_stream, get_video_stream
 from pytgcalls.types import Update
-from pytgcalls.types import AudioPiped
 from pytgcalls import AudioPiped, AudioVideoPiped, AudioQuality, AudioParameters
 from Chizuru.core.thumb_func import transcode, convert_seconds, time_to_seconds, generate_cover
 
