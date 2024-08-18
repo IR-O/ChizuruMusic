@@ -3,7 +3,7 @@ from os import getenv
 
 API_ID = int(getenv("API_ID", "28542531"))
 API_HASH = getenv("API_HASH", "9f4889cd2437d72ede20428c07a909be")
-BOT_TOKEN = getenv("BOT_TOKEN", "6365132039:AAF48I0KgZe4cyHmhMiRx_K634u6BEKApDQ")
+BOT_TOKEN = getenv("BOT_TOKEN", "6225522475:AAFWmrEP74CgUUmrnCI-YX3NxHtqBZZ7Obk")
 OWNER_ID = int(getenv("OWNER_ID", "6045293810"))
 SUDO_USERS = list(map(int, getenv("SUDO_USERS", "6045293810").split()))
 MONGO_URL = getenv("MONGO_URL", "mongodb+srv://Michiko:michiko@michiko.oomgmrd.mongodb.net/?retryWrites=true&w=majority")
