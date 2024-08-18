@@ -1,5 +1,5 @@
 ffmpeg-python
-python==3.9.18
+python==3.12.5
 py-tgcalls==0.3.9
 pyrogram
 python-dotenv
