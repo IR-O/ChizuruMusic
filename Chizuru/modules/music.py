@@ -2,7 +2,7 @@ import os, aiofiles, aiohttp, ffmpeg, random, re
 import requests
 from Chizuru.core.admin_func import authorized_users, admins as a, set_admins as set
 from Chizuru import Chizuru, pytgcalls, userbot
-from collections import Callable
+from typing import Callable
 from pyrogram import filters, Client
 from pyrogram.types import *
 from youtube_search import YoutubeSearch
