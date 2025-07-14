@@ -15,4 +15,4 @@ motor==2.5.1
 pymongo==3.12.3
 lexica-api
 beautifulsoup4
-git+https://github.com/MarshalX/py-tgcalls@master  # ✅ PyTgCalls with valid ntgcalls
+git+https://github.com/pytgcalls/pytgcalls.git  # ✅ Public working version
