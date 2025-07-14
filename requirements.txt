@@ -12,7 +12,8 @@ wget
 pydub
 aiohttp
 motor==2.5.1
-pymongo==3.12.3
+pymongo[srv]==3.12.3
+dnspython
 lexica-api
 beautifulsoup4
-git+https://github.com/pytgcalls/pytgcalls.git  # ✅ Public working version
+git+https://github.com/pytgcalls/pytgcalls.git
