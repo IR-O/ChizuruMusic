@@ -6,7 +6,7 @@ tgcrypto
 youtube_search
 yt-dlp
 pytube
-pillow==10.2.0
+pillow==10.1.0
 aiofiles
 numpy
 wget
