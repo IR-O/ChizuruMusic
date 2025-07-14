@@ -1,19 +1,19 @@
 ffmpeg-python
-python-dotenv
+py-tgcalls==2.0.2                 # ✅ Compatible with your codebase (AudioPiped, etc.)
 pyrogram==2.0.106
+python-dotenv
 tgcrypto
 youtube_search
 yt-dlp
 pytube
-pillow==10.1.0
+pillow==10.1.0                    # ✅ Avoids Python 3.13 error
 aiofiles
 numpy
 wget
 pydub
 aiohttp
-motor==2.5.1
-pymongo[srv]==3.12.3
-dnspython
+motor==2.5.1                      # ✅ Works with pymongo 3.12.3
+pymongo[srv]==3.12.3              # ✅ SRV support for MongoDB Atlas
+dnspython                         # ✅ Required by pymongo SRV connection
 lexica-api
 beautifulsoup4
-git+https://github.com/pytgcalls/pytgcalls.git
