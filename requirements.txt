@@ -1,18 +1,18 @@
 ffmpeg-python
-py-tgcalls==2.0.2
-pyrogram==2.0.106
 python-dotenv
+pyrogram==2.0.106
 tgcrypto
 youtube_search
 yt-dlp
 pytube
-pillow==10.1.0        # Compatible with Python 3.10
+pillow==10.1.0
 aiofiles
 numpy
 wget
 pydub
 aiohttp
-motor==2.5.1          # Works with pymongo 3.12.3
-pymongo==3.12.3       # Fixes _QUERY_OPTIONS error
+motor==2.5.1
+pymongo==3.12.3
 lexica-api
-beautifulsoup4        # Replace `bs4` with the correct package name
+beautifulsoup4
+git+https://github.com/MarshalX/py-tgcalls@master  # ✅ PyTgCalls with valid ntgcalls
