@@ -1,4 +1,4 @@
-pytgcalls==1.2.6
+py-tgcalls==2.0.2
 ntgcalls==0.2.0
 pyrogram==2.0.106
 python-dotenv
