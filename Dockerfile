@@ -1,22 +1,12 @@
-FROM python:3.10-slim
+FROM python:3.10.4-slim-buster
+RUN apt update && apt upgrade -y
+RUN apt-get install git curl python3-pip ffmpeg -y
+RUN apt-get -y install git
+RUN apt-get install -y wget python3-pip curl bash neofetch ffmpeg software-properties-common
+COPY requirements.txt .
 
-# Install system dependencies
-RUN apt-get update -y && apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
-    ffmpeg \
-    git && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set working directory
+RUN pip3 install wheel
+RUN pip3 install --no-cache-dir -U -r requirements.txt
 WORKDIR /app
-
-# Copy project files
 COPY . .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-# Run the bot
-CMD ["python3", "-m", "Chizuru"]
+CMD python3 -m Chizuru
