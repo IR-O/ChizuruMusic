@@ -1,4 +1,9 @@
 {
-  "name": "node-dependency",
-  "version": "1.0.0"
+  "name": "music-bot",
+  "version": "1.0.0",
+  "description": "ChizuruMusic Node.js Dependency",
+  "main": "index.js",
+  "engines": {
+    "node": "18.x"
+  }
 }
