@@ -16,9 +16,9 @@ pillow
 psutil
 py-tgcalls==0.9.7
 pykeyboard
-pyrogram
 pyrofork
 python-dotenv
+pydub
 pyyaml
 requests
 speedtest-cli
@@ -30,5 +30,3 @@ yt-dlp
 youtube-search
 youtube-search-python
 pytube
-pydub
-git+https://github.com/AnonymousR1025/py-tgcalls.git@master
