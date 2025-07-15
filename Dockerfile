@@ -1,23 +1,26 @@
-FROM python:3.10.4-slim-buster
+# Use image with Python 3.10 + Node.js preinstalled
+FROM nikolaik/python-nodejs:python3.10-nodejs18
 
-# Install Node.js 18.x, FFmpeg, and essential packages
-RUN apt update && apt upgrade -y && \
-    apt install -y curl gnupg ffmpeg git wget bash neofetch software-properties-common && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install system packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    git \
+    curl \
+    wget \
+    bash \
+    neofetch \
+    software-properties-common \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Verify essential versions (optional)
-RUN node -v && npm -v && ffmpeg -version && python3 --version
+# Set working directory
+WORKDIR /app
 
-# Install Python dependencies
+# Copy dependency file and install Python packages
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -U pip wheel
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Set working directory
-WORKDIR /app
+# Copy project files
 COPY . .
 
 # Run the bot
