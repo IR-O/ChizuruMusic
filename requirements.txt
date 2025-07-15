@@ -14,7 +14,8 @@ motor
 numpy
 pillow
 psutil
-py-tgcalls==1.2.2
+py-tgcalls==2.0.2
+ntgcalls==2.0.5
 pykeyboard
 pyrofork
 python-dotenv
