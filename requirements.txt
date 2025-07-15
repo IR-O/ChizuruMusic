@@ -1,5 +1,5 @@
 py-tgcalls==2.0.2
-ntgcalls==0.2.0
+ntgcalls==2.0.5
 pyrogram==2.0.106
 python-dotenv
 tgcrypto
