@@ -31,3 +31,4 @@ youtube-search
 youtube-search-python
 pytube
 pydub
+git+https://github.com/Dazai-TEAM/py-tgcalls.git@master
