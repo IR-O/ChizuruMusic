@@ -1,5 +1,7 @@
 {
+  "name": "chizuru",
+  "version": "1.0.0",
   "engines": {
-    "node": "16.x"
+    "node": ">=15.0.0"
   }
 }
