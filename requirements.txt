@@ -26,5 +26,4 @@ unidecode
 wget
 yt-dlp
 youtube-search
-youtube-search-python
 pytube
