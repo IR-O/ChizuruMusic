@@ -1,23 +1,17 @@
-import os
-import random
-import requests
-
+import os, random, requests
 from pyrogram import filters
 from pyrogram.types import *
 from pyrogram.errors import UserAlreadyParticipant
-
 from youtube_search import YoutubeSearch
 
+from pytgcalls import AudioPiped, AudioVideoPiped
 from pytgcalls.types import Update
-from pytgcalls.types.input_stream import InputAudioStream, InputVideoStream, InputStream
-from pytgcalls.types.input_stream.quality import HighQualityAudio, HighQualityVideo
 
-from Chizuru.core.admin_func import authorized_users
 from Chizuru import Chizuru, pytgcalls, userbot
 from Chizuru.core import utils as rq
 from Chizuru.core.utils import DurationLimitError, get_audio_stream, get_video_stream
+from Chizuru.core.admin_func import authorized_users
 from Chizuru.core.thumb_func import generate_cover
-
 
 DURATION_LIMIT = 300
 
@@ -32,14 +26,13 @@ local_thumb = [
     "https://graph.org/file/2deb4e5cbba862f2d5457.jpg",
 ]
 
-# ---------------------------------------------------------------------------------- #
-# PLAY AUDIO
+# ================= PLAY AUDIO ================= #
 
 @Chizuru.on_message(filters.command(["play"], prefixes=["/", "."]))
 async def play(_, message: Message):
     chat_id = message.chat.id
     user_name = message.from_user.mention
-    msg = await message.reply("**🔎 Searching...**")
+    msg = await message.reply("🔎 Searching...")
 
     # Assistant join
     try:
@@ -49,19 +42,15 @@ async def play(_, message: Message):
         try:
             invitelink = await _.export_chat_invite_link(chat_id)
             await userbot.join_chat(invitelink)
-            await userbot.send_message(chat_id, "✅ Assistant joined for music.")
-        except UserAlreadyParticipant:
-            pass
-        except Exception:
-            return await msg.edit_text("**» Please manually add assistant as admin.**")
+        except:
+            return await msg.edit("❌ Please add assistant as admin first.")
 
-    audio = ((message.reply_to_message.audio or message.reply_to_message.voice)
-             if message.reply_to_message else None)
+    audio = (message.reply_to_message.audio or message.reply_to_message.voice) if message.reply_to_message else None
 
-    # -------- LOCAL FILE -------- #
+    # ---------- LOCAL AUDIO ---------- #
     if audio:
         if round(audio.duration / 60) > DURATION_LIMIT:
-            return await msg.edit_text("**Song too long.**")
+            return await msg.edit("❌ Song too long.")
 
         file_path = await message.reply_to_message.download()
         title = audio.file_name or "Local Audio"
@@ -72,12 +61,11 @@ async def play(_, message: Message):
 
         await generate_cover(user_name, title, views, duration, thumbnail)
 
-    # -------- YOUTUBE -------- #
+    # ---------- YOUTUBE ---------- #
     else:
         if len(message.command) < 2:
-            return await msg.edit_text("💌 **Usage: /play song name**")
+            return await msg.edit("Usage: /play song name")
 
-        await msg.edit_text("**⇆ Processing...**")
         query = message.text.split(None, 1)[1]
 
         try:
@@ -94,58 +82,52 @@ async def play(_, message: Message):
                 secmul *= 60
 
         except Exception:
-            return await msg.edit("**Song not found.**")
+            return await msg.edit("❌ Song not found.")
 
         if (dur / 60) > DURATION_LIMIT:
-            return await msg.edit("**Song too long.**")
+            return await msg.edit("❌ Song too long.")
 
         await generate_cover(user_name, title, views, duration, thumbnail)
         file_path = await get_audio_stream(link)
 
-    # -------- QUEUE / PLAY -------- #
+    # ---------- QUEUE / PLAY ---------- #
 
     ACTV_CALLS = [int(x.chat_id) for x in pytgcalls.active_calls]
 
-    if int(chat_id) in ACTV_CALLS:
+    if chat_id in ACTV_CALLS:
         position = await rq.put(chat_id, file=file_path)
         await message.reply_photo(
             photo="final.png",
-            caption=f"**➻ Track added to queue » {position}**\n\n"
-                    f"🏷️ **Name:** [{title[:15]}]({link})\n"
-                    f"⏰ **Duration:** `{duration}`\n"
-                    f"👀 **Requested by:** {user_name}",
+            caption=f"➕ Added to queue at position {position}\n\n"
+                    f"🎵 {title}\n"
+                    f"⏰ {duration}\n"
+                    f"👤 {user_name}",
             reply_markup=keyboard,
         )
     else:
         await pytgcalls.join_group_call(
             chat_id,
-            InputStream(
-                InputAudioStream(
-                    file_path,
-                    HighQualityAudio()
-                )
-            ),
+            AudioPiped(file_path),
         )
         await message.reply_photo(
             photo="final.png",
+            caption=f"▶️ Started streaming\n\n"
+                    f"🎵 {title}\n"
+                    f"⏰ {duration}\n"
+                    f"👤 {user_name}",
             reply_markup=keyboard,
-            caption=f"**➻ Started streaming**\n"
-                    f"🏷️ **Name:** [{title[:15]}]({link})\n"
-                    f"⏰ **Duration:** `{duration}`\n"
-                    f"👀 **Requested by:** {user_name}",
         )
 
     os.remove("final.png")
-    return await msg.delete()
+    await msg.delete()
 
-# ---------------------------------------------------------------------------------- #
-# VIDEO PLAY
+# ================= VIDEO PLAY ================= #
 
 @Chizuru.on_message(filters.command(["vplay"], prefixes=["/", "."]))
 async def vplay(_, message: Message):
     chat_id = message.chat.id
     user_name = message.from_user.mention
-    msg = await message.reply("**🔎 Searching...**")
+    msg = await message.reply("🔎 Searching video...")
 
     try:
         user = await userbot.get_me()
@@ -155,10 +137,10 @@ async def vplay(_, message: Message):
             invitelink = await _.export_chat_invite_link(chat_id)
             await userbot.join_chat(invitelink)
         except:
-            return await msg.edit_text("**» Add assistant first.**")
+            return await msg.edit("❌ Add assistant first.")
 
     if len(message.command) < 2:
-        return await msg.edit_text("Usage: /vplay video name")
+        return await msg.edit("Usage: /vplay video name")
 
     query = message.text.split(None, 1)[1]
 
@@ -170,50 +152,42 @@ async def vplay(_, message: Message):
         views = results[0]["views"]
         thumbnail = results[0]["thumbnails"][0]
     except:
-        return await msg.edit("**Video not found.**")
+        return await msg.edit("❌ Video not found.")
 
     await generate_cover(user_name, title, views, duration, thumbnail)
     file_path = await get_video_stream(link)
 
     ACTV_CALLS = [int(x.chat_id) for x in pytgcalls.active_calls]
 
-    if int(chat_id) in ACTV_CALLS:
+    if chat_id in ACTV_CALLS:
         position = await rq.put(chat_id, file=file_path)
         await message.reply_photo(
             photo="final.png",
-            caption=f"**➻ Video added to queue » {position}**",
+            caption=f"➕ Video added to queue {position}",
             reply_markup=keyboard,
         )
     else:
         await pytgcalls.join_group_call(
             chat_id,
-            InputStream(
-                InputVideoStream(
-                    file_path,
-                    HighQualityVideo()
-                )
-            ),
+            AudioVideoPiped(file_path),
         )
         await message.reply_photo(
             photo="final.png",
-            caption=f"**➻ Started video stream**\n"
-                    f"🏷️ **Name:** [{title[:15]}]({link})",
+            caption=f"▶️ Started video stream\n🎵 {title}",
             reply_markup=keyboard,
         )
 
     os.remove("final.png")
     await msg.delete()
 
-# ---------------------------------------------------------------------------------- #
-# SKIP / NEXT
+# ================= SKIP / AUTO NEXT ================= #
 
-@Chizuru.on_message(filters.command(["skip", "next"], prefixes=["/", "!"]))
-async def skip(_, message: Message):
+@Chizuru.on_message(filters.command(["skip", "next"]))
+async def skip(_, message):
     chat_id = message.chat.id
-    ACTV_CALLS = [int(x.chat_id) for x in pytgcalls.active_calls]
 
-    if chat_id not in ACTV_CALLS:
-        return await message.reply_text("**Nothing playing.**")
+    if chat_id not in [int(x.chat_id) for x in pytgcalls.active_calls]:
+        return await message.reply("❌ Nothing playing.")
 
     rq.task_done(chat_id)
 
@@ -222,17 +196,9 @@ async def skip(_, message: Message):
     else:
         await pytgcalls.change_stream(
             chat_id,
-            InputStream(
-                InputAudioStream(
-                    rq.get(chat_id)["file"],
-                    HighQualityAudio()
-                )
-            ),
+            AudioPiped(rq.get(chat_id)["file"]),
         )
-        await message.reply_text("**⏭ Skipped.**")
-
-# ---------------------------------------------------------------------------------- #
-# AUTO NEXT
+        await message.reply("⏭ Skipped.")
 
 @pytgcalls.on_stream_end()
 async def on_stream_end(_, update: Update):
@@ -244,61 +210,5 @@ async def on_stream_end(_, update: Update):
     else:
         await pytgcalls.change_stream(
             chat_id,
-            InputStream(
-                InputAudioStream(
-                    rq.get(chat_id)["file"],
-                    HighQualityAudio()
-                )
-            ),
+            AudioPiped(rq.get(chat_id)["file"]),
         )
-
-# ---------------------------------------------------------------------------------- #
-# CONTROLS
-
-@Chizuru.on_message(filters.command("join"))
-@authorized_users
-async def join_userbot(_, msg):
-    chat_id = msg.chat.id
-    invitelink = await Chizuru.export_chat_invite_link(chat_id)
-    await userbot.join_chat(invitelink)
-    await msg.reply("**Assistant joined.**")
-
-@Chizuru.on_message(filters.command(["pause"], prefixes=["/", "!"]))
-@authorized_users
-async def pause(_, msg):
-    chat_id = msg.chat.id
-    await pytgcalls.pause_stream(chat_id)
-    await msg.reply("**⏸ Paused.**")
-
-@Chizuru.on_message(filters.command(["resume"], prefixes=["/", "!"]))
-@authorized_users
-async def resume(_, msg):
-    chat_id = msg.chat.id
-    await pytgcalls.resume_stream(chat_id)
-    await msg.reply("**▶️ Resumed.**")
-
-@Chizuru.on_message(filters.command(["end"], prefixes=["/", "!"]))
-@authorized_users
-async def stop(_, msg):
-    chat_id = msg.chat.id
-    await pytgcalls.leave_group_call(chat_id)
-    await msg.reply("**⏹ Stopped.**")
-
-@Chizuru.on_message(filters.command(["leavevc"], prefixes=["/", "!"]))
-@authorized_users
-async def leavevc(_, msg):
-    chat_id = msg.chat.id
-    await pytgcalls.leave_group_call(chat_id)
-    await msg.reply("**Left voice chat.**")
-
-@Chizuru.on_message(filters.command("volume", prefixes="/"))
-async def change_volume(client, message):
-    chat_id = message.chat.id
-    args = message.text.split()
-
-    if len(args) == 2 and args[1].isdigit():
-        volume = int(args[1])
-        await pytgcalls.change_volume_call(chat_id, volume)
-        await message.reply(f"**Volume set to {volume}%**")
-    else:
-        await message.reply("**Usage: /volume 0-200**")
