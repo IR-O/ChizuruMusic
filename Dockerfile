@@ -1,20 +1,24 @@
-FROM nikolaik/python-nodejs:python3.10-nodejs19
+FROM python:3.10-bullseye
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
+RUN apt-get update && \
+    apt-get install -y \
+        ffmpeg \
+        git \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Set workdir
+WORKDIR /app
+
+# Copy project
+COPY . /app
 
 # Upgrade pip
 RUN python -m pip install --upgrade pip
 
-# Copy your bot code into the image
-COPY . /app/
-WORKDIR /app/
-
-# Install Python dependencies
+# Install Python deps
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set entrypoint
+# Start bot
 CMD ["python3", "-m", "Chizuru"]
