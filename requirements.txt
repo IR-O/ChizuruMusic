@@ -1,5 +1,6 @@
 aiofiles
 aiohttp
+asyncio
 beautifulsoup4
 bs4
 dnspython
@@ -8,6 +9,7 @@ gitpython
 hachoir
 heroku3
 httpx==0.27.2
+lexica-api
 motor
 numpy
 pillow
@@ -26,4 +28,5 @@ unidecode
 wget
 yt-dlp
 youtube-search
+youtube-search-python
 pytube
