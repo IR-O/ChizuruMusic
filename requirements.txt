@@ -1,6 +1,5 @@
 aiofiles
 aiohttp
-asyncio
 beautifulsoup4
 bs4
 dnspython
@@ -9,12 +8,11 @@ gitpython
 hachoir
 heroku3
 httpx==0.27.2
-lexica-api
 motor
 numpy
 pillow
 psutil
-py-tgcalls==0.9.7
+py-tgcalls==2.2.10
 pykeyboard
 pyrofork
 python-dotenv
@@ -28,5 +26,4 @@ unidecode
 wget
 yt-dlp
 youtube-search
-youtube-search-python
 pytube
