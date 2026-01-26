@@ -1,14 +1,18 @@
 FROM python:3.10-bullseye
 
-# Install system deps + nodejs
+# Install system deps
 RUN apt-get update && \
     apt-get install -y \
         ffmpeg \
         git \
-        nodejs \
-        npm \
-    && apt-get clean \
+        curl \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 18.x (for PyTgCalls)
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get update && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
