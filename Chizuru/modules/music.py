@@ -10,7 +10,8 @@ from pyrogram.errors import UserAlreadyParticipant
 from youtube_search import YoutubeSearch
 
 from pytgcalls.types import Update
-from pytgcalls import AudioPiped, AudioVideoPiped
+from pytgcalls.types.input_stream import InputAudioStream, InputVideoStream, InputStream
+from pytgcalls.types.input_stream.quality import HighQualityAudio, HighQualityVideo
 
 from Chizuru.core.admin_func import authorized_users, admins as a, set_admins as set
 from Chizuru import Chizuru, pytgcalls, userbot
@@ -124,7 +125,12 @@ async def play(_, message):
     else:
         await pytgcalls.join_group_call(
             chat_id,
-            AudioPiped(file_path),
+            InputStream(
+                InputAudioStream(
+                    file_path,
+                    HighQualityAudio()
+                )
+            ),
         )
         await message.reply_photo(
             photo="final.png",
@@ -187,7 +193,12 @@ async def vplay(_, message):
     else:
         await pytgcalls.join_group_call(
             chat_id,
-            AudioVideoPiped(file_path),
+            InputStream(
+                InputVideoStream(
+                    file_path,
+                    HighQualityVideo()
+                )
+            ),
         )
         await message.reply_photo(
             photo="final.png",
@@ -217,7 +228,12 @@ async def skip(_, message: Message):
     else:
         await pytgcalls.change_stream(
             chat_id,
-            AudioPiped(rq.get(chat_id)["file"]),
+            InputStream(
+                InputAudioStream(
+                    rq.get(chat_id)["file"],
+                    HighQualityAudio()
+                )
+            ),
         )
         await message.reply_text("**⏭ Skipped.**")
 
@@ -234,7 +250,12 @@ async def on_stream_end(_, update: Update):
     else:
         await pytgcalls.change_stream(
             chat_id,
-            AudioPiped(rq.get(chat_id)["file"]),
+            InputStream(
+                InputAudioStream(
+                    rq.get(chat_id)["file"],
+                    HighQualityAudio()
+                )
+            ),
         )
 
 # ---------------------------------------------------------------------------------- #
