@@ -1,24 +1,21 @@
-import os, aiofiles, aiohttp, ffmpeg, random, re
+import os, aiofiles, aiohttp, random, re
 import requests
-from typing import Callable
 from asyncio.queues import QueueEmpty
 
-from pyrogram import filters, Client
+from pyrogram import filters
 from pyrogram.types import *
 from pyrogram.errors import UserAlreadyParticipant
 
 from youtube_search import YoutubeSearch
 
 from pytgcalls.types import Update
-from pytgcalls.types.input_stream import InputAudioStream, InputVideoStream, InputStream
-from pytgcalls.types.input_stream.quality import HighQualityAudio, HighQualityVideo
+from pytgcalls import AudioPiped, AudioVideoPiped
 
-from Chizuru.core.admin_func import authorized_users, admins as a, set_admins as set
+from Chizuru.core.admin_func import authorized_users
 from Chizuru import Chizuru, pytgcalls, userbot
 from Chizuru.core import utils as rq
-from Chizuru.core.utils import DurationLimitError
-from Chizuru.core.utils import get_audio_stream, get_video_stream
-from Chizuru.core.thumb_func import transcode, convert_seconds, time_to_seconds, generate_cover
+from Chizuru.core.utils import DurationLimitError, get_audio_stream, get_video_stream
+from Chizuru.core.thumb_func import generate_cover
 
 
 DURATION_LIMIT = 300
@@ -35,20 +32,17 @@ local_thumb = [
 ]
 
 que = {}
-chat_id = None
-useer = "NaN"
 
 # ---------------------------------------------------------------------------------- #
+# PLAY AUDIO
 
 @Chizuru.on_message(filters.command(["play"], prefixes=["/", "."]))
 async def play(_, message):
-    global que, useer
-
     chat_id = message.chat.id
     user_name = message.from_user.mention
     msg = await message.reply("**🔎 sᴇᴀʀᴄʜɪɴɢ...**")
 
-    # Assistant join logic (unchanged)
+    # Assistant join
     try:
         user = await userbot.get_me()
         await _.get_chat_member(chat_id, user.id)
@@ -56,33 +50,32 @@ async def play(_, message):
         try:
             invitelink = await _.export_chat_invite_link(chat_id)
             await userbot.join_chat(invitelink)
-            await userbot.send_message(chat_id, "✅ Assistant joined for music.")
+            await userbot.send_message(chat_id, "✅ Assistant joined.")
         except UserAlreadyParticipant:
             pass
-        except Exception:
-            return await msg.edit_text("**» Please manually add assistant as admin.**")
+        except:
+            return await msg.edit_text("**» Please add assistant as admin first.**")
 
-    audio = ((message.reply_to_message.audio or message.reply_to_message.voice) if message.reply_to_message else None)
+    audio = (message.reply_to_message.audio if message.reply_to_message else None)
 
-    # ------------------ LOCAL FILE PLAY ------------------ #
+    # ---------------- LOCAL FILE ---------------- #
     if audio:
         if round(audio.duration / 60) > DURATION_LIMIT:
             raise DurationLimitError("Song too long.")
 
         file_path = await message.reply_to_message.download()
-        title = audio.file_name
-        link = "https://t.me/ChizuruMusicBot"
+        title = audio.file_name or "Local Audio"
+        link = "https://t.me"
         thumbnail = random.choice(local_thumb)
-        duration = round(audio.duration / 60)
+        duration = audio.duration
         views = "Local file"
         await generate_cover(user_name, title, views, duration, thumbnail)
 
-    # ------------------ YOUTUBE PLAY ------------------ #
+    # ---------------- YOUTUBE ---------------- #
     else:
         if len(message.command) < 2:
             return await msg.edit_text("💌 **Usage: /play song name**")
 
-        await msg.edit_text("▓▓▓▓▓▓▓▓▓▓▓100%\n\n**⇆ ᴘʀᴏᴄᴇssɪɴɢ...**")
         query = message.text.split(None, 1)[1]
 
         try:
@@ -98,7 +91,7 @@ async def play(_, message):
                 dur += int(i) * secmul
                 secmul *= 60
 
-        except Exception:
+        except:
             return await msg.edit("**sᴏɴɢ ɴᴏᴛ ғᴏᴜɴᴅ.**")
 
         if (dur / 60) > DURATION_LIMIT:
@@ -107,45 +100,35 @@ async def play(_, message):
         await generate_cover(user_name, title, views, duration, thumbnail)
         file_path = await get_audio_stream(link)
 
-    # ------------------ QUEUE / PLAY LOGIC ------------------ #
-
     ACTV_CALLS = [int(x.chat_id) for x in pytgcalls.active_calls]
 
     if int(chat_id) in ACTV_CALLS:
         position = await rq.put(chat_id, file=file_path)
         await message.reply_photo(
             photo="final.png",
-            caption=f"**➻ ᴛʀᴀᴄᴋ ᴀᴅᴅᴇᴅ ᴛᴏ ǫᴜᴇᴜᴇ » {position}**\n\n"
+            caption=f"**➻ ᴛʀᴀᴄᴋ ᴀᴅᴅᴇᴅ ᴛᴏ ǫᴜᴇᴜᴇ » {position}**\n"
                     f"🏷️ **ɴᴀᴍᴇ :** [{title[:15]}]({link})\n"
-                    f"⏰ **ᴅᴜʀᴀᴛɪᴏɴ :** `{duration}`\n"
                     f"👀 **ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :** {user_name}",
             reply_markup=keyboard,
         )
     else:
-        # 🔥 MAIN FIX: AudioPiped → InputStream(InputAudioStream)
         await pytgcalls.join_group_call(
             chat_id,
-            InputStream(
-                InputAudioStream(
-                    file_path,
-                    HighQualityAudio()
-                )
-            ),
+            AudioPiped(file_path),
         )
         await message.reply_photo(
             photo="final.png",
             reply_markup=keyboard,
             caption=f"**➻ sᴛᴀʀᴛᴇᴅ sᴛʀᴇᴀᴍɪɴɢ**\n"
                     f"🏷️ **ɴᴀᴍᴇ :** [{title[:15]}]({link})\n"
-                    f"⏰ **ᴅᴜʀᴀᴛɪᴏɴ :** `{duration}`\n"
-                    f"👀 **ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :** {user_name}\n",
+                    f"👀 **ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ :** {user_name}",
         )
 
     os.remove("final.png")
-    return await msg.delete()
+    await msg.delete()
 
 # ---------------------------------------------------------------------------------- #
-# VIDEO PLAY (vplay) – SAME FIX
+# VIDEO PLAY
 
 @Chizuru.on_message(filters.command(["vplay"], prefixes=["/", "."]))
 async def vplay(_, message):
@@ -191,15 +174,9 @@ async def vplay(_, message):
             reply_markup=keyboard,
         )
     else:
-        # 🔥 MAIN FIX: AudioVideoPiped → InputStream(InputVideoStream)
         await pytgcalls.join_group_call(
             chat_id,
-            InputStream(
-                InputVideoStream(
-                    file_path,
-                    HighQualityVideo()
-                )
-            ),
+            AudioVideoPiped(file_path),
         )
         await message.reply_photo(
             photo="final.png",
@@ -215,11 +192,10 @@ async def vplay(_, message):
 # SKIP / NEXT
 
 @Chizuru.on_message(filters.command(["skip", "next"], prefixes=["/", "!"]))
-async def skip(_, message: Message):
+async def skip(_, message):
     chat_id = message.chat.id
-    ACTV_CALLS = [int(x.chat_id) for x in pytgcalls.active_calls]
 
-    if chat_id not in ACTV_CALLS:
+    if chat_id not in [int(x.chat_id) for x in pytgcalls.active_calls]:
         return await message.reply_text("**Nothing playing.**")
 
     rq.task_done(chat_id)
@@ -229,12 +205,7 @@ async def skip(_, message: Message):
     else:
         await pytgcalls.change_stream(
             chat_id,
-            InputStream(
-                InputAudioStream(
-                    rq.get(chat_id)["file"],
-                    HighQualityAudio()
-                )
-            ),
+            AudioPiped(rq.get(chat_id)["file"]),
         )
         await message.reply_text("**⏭ Skipped.**")
 
@@ -251,61 +222,26 @@ async def on_stream_end(_, update: Update):
     else:
         await pytgcalls.change_stream(
             chat_id,
-            InputStream(
-                InputAudioStream(
-                    rq.get(chat_id)["file"],
-                    HighQualityAudio()
-                )
-            ),
+            AudioPiped(rq.get(chat_id)["file"]),
         )
 
 # ---------------------------------------------------------------------------------- #
-# CONTROL COMMANDS (UNCHANGED)
-
-@Chizuru.on_message(filters.command("join"))
-@authorized_users
-async def join_userbot(_, msg):
-    chat_id = msg.chat.id
-    invitelink = await Chizuru.export_chat_invite_link(chat_id)
-    await userbot.join_chat(invitelink)
-    await msg.reply("**Assistant joined.**")
+# CONTROLS
 
 @Chizuru.on_message(filters.command(["pause"], prefixes=["/", "!"]))
 @authorized_users
 async def pause(_, msg):
-    chat_id = msg.chat.id
-    await pytgcalls.pause_stream(chat_id)
+    await pytgcalls.pause_stream(msg.chat.id)
     await msg.reply("**⏸ Paused.**")
 
 @Chizuru.on_message(filters.command(["resume"], prefixes=["/", "!"]))
 @authorized_users
 async def resume(_, msg):
-    chat_id = msg.chat.id
-    await pytgcalls.resume_stream(chat_id)
+    await pytgcalls.resume_stream(msg.chat.id)
     await msg.reply("**▶️ Resumed.**")
 
-@Chizuru.on_message(filters.command(["end"], prefixes=["/", "!"]))
+@Chizuru.on_message(filters.command(["end", "leavevc"], prefixes=["/", "!"]))
 @authorized_users
 async def stop(_, msg):
-    chat_id = msg.chat.id
-    await pytgcalls.leave_group_call(chat_id)
+    await pytgcalls.leave_group_call(msg.chat.id)
     await msg.reply("**⏹ Stopped.**")
-
-@Chizuru.on_message(filters.command(["leavevc"], prefixes=["/", "!"]))
-@authorized_users
-async def leavevc(_, msg):
-    chat_id = msg.chat.id
-    await pytgcalls.leave_group_call(chat_id)
-    await msg.reply("**Left voice chat.**")
-
-@Chizuru.on_message(filters.command("volume", prefixes="/"))
-async def change_volume(client, message):
-    chat_id = message.chat.id
-    args = message.text.split()
-
-    if len(args) == 2 and args[1].isdigit():
-        volume = int(args[1])
-        await pytgcalls.change_volume_call(chat_id, volume)
-        await message.reply(f"**Volume set to {volume}%**")
-    else:
-        await message.reply("**Usage: /volume 0-200**")
