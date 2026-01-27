@@ -2,40 +2,19 @@
 pyrogram==2.0.106
 tgcrypto
 
-# Voice Call
+# Voice Call Engine
 py-tgcalls==2.2.10
 
 # Async / Network
-aiofiles
 aiohttp
-httpx==0.27.2
 requests
 
-# Media
-ffmpeg-python
-pillow
+# Media / Audio
 pydub
 yt-dlp
-pytube
 
-# Scraping / Search
-beautifulsoup4
-bs4
+# Search
 youtube-search
 
-# Utils
-dnspython
-gitpython
-hachoir
-heroku3
-motor
-numpy
+# System Utils
 psutil
-pykeyboard
-pyrofork
-python-dotenv
-pyyaml
-speedtest-cli
-spotipy
-unidecode
-wget
