@@ -1,20 +1,12 @@
-# Core Telegram
-pyrogram==2.0.106
+pyrogram
+py-tgcalls
 tgcrypto
-
-# Voice Call Engine
-py-tgcalls==2.2.10
-
-# Async / Network
-aiohttp
+youtube_search
 requests
-
-# Media / Audio
-pydub
 yt-dlp
-
-# Search
-youtube-search
-
-# System Utils
-psutil
+pillow
+aiofiles
+numpy
+aiohttp
+ffmpeg-python
+motor
